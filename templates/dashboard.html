@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Legítimo Abono{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Dashboard</h2>
+        <p class="lead">Bienvenido, {{ user }} ({{ role }})</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Productos</h5>
+                <p class="card-text">Gestiona tu catálogo de productos</p>
+                <a href="{{ url_for('products') }}" class="btn btn-light">Ver Productos</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if role == 'admin' %}
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Usuarios</h5>
+                <p class="card-text">Gestiona usuarios del sistema</p>
+                <a href="{{ url_for('user_management') }}" class="btn btn-light">Gestionar Usuarios</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Reportes</h5>
+                <p class="card-text">Visualiza reportes y estadísticas</p>
+                <a href="#" class="btn btn-light">Ver Reportes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
