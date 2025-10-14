@@ -14,10 +14,10 @@ El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) 
 y no afecten las instaladas en el sistema que se utilice. De realizar en producción directamente ir a la instalación de los requerimientos
 informados en requirements.txt**
 
-```
-bashpython3 -m venv venv
-bashpython3 venv\Scripts\activate
-bashpython3 pip install requirements.txt
+```bash
+python -m venv venv
+python venv\Scripts\activate
+python pip install requirements.txt
 ```
 
 #### Iniciar el proyecto de manera local
