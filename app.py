@@ -56,6 +56,7 @@ def find_user_by_email(email):
 def is_admin():
     return session.get('user_role') == 'admin'
 
+    
 def login_required(admin_only=False):
     def decorator(f):
         from functools import wraps
@@ -74,12 +75,34 @@ def login_required(admin_only=False):
 # Routes
 @app.route('/')
 def index():
-    return render_template('index.html')
+    #return login()
+    return redirect(url_for('login'))
+    #return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
+    form=LoginForm()
+    #Se verifica si el usuario esta logueado, de ser asi se dirige al dashboard
+    if 'user' in session:
+        return redirect(url_for('dashboard'))
+    if request.method=='POST':
+        
+        #Cuando aprete el boton para loguearme
+        email=request.form.get('email','').strip()
+        password=request.form.get('password','')
+
+        #evaluo si se ingresaron los datos para el login
+        if not email or not password:
+            flash('Por favor complete todos los datos','error')
+            return render_template('login.html')
+        
+        if not find_user_by_email(form.email.data):
+            flash('Usuario o contraseña invalidos','error')
+            return render_template('login.html')
+        
+
+    #form = LoginForm()
+    #if form.validate_on_submit():
         user = find_user_by_email(form.email.data)
         if user and user['password'] == form.password.data:  # En producción usar hash
             session['user'] = user['email']
@@ -90,6 +113,8 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Email o contraseña incorrectos', 'error')
+    #return render_template('login.html', form=form)
+    
     return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -148,9 +173,10 @@ def api_products():
 
 @app.route('/logout')
 def logout():
+    form=LoginForm
     session.clear()
     flash('Has cerrado sesión', 'info')
-    return redirect(url_for('index'))
+    return redirect('login.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
