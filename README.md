@@ -22,6 +22,6 @@ python pip install requirements.txt
 
 #### Iniciar el proyecto de manera local
 
-```sh
-$ python app.py
+```bash
+python app.py
 ```
