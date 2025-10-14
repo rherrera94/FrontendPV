@@ -176,7 +176,7 @@ def logout():
     form=LoginForm
     session.clear()
     flash('Has cerrado sesión', 'info')
-    return redirect('login.html', form=form)
+    return redirect('login')
 
 if __name__ == '__main__':
     app.run(debug=True)

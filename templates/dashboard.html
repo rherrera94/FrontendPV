@@ -3,44 +3,59 @@
 {% block title %}Dashboard - Sistema de Reservas{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Dashboard</h2>
-        <p class="lead">Bienvenido, {{ user }} ({{ role }})</p>
+<div class="container py-4">
+    <div class="row mb-4 text-center">
+        <div class="col-12">
+            <h2 class="fw-bold text-success">Dashboard</h2>
+            <p class="lead mb-0">Bienvenido, {{ user }} ({{ role }})</p>
+        </div>
     </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Productos</h5>
-                <p class="card-text">Gestiona tu catálogo de productos</p>
-                <a href="{{ url_for('products') }}" class="btn btn-light">Ver Productos</a>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="card-title">Productos</h5>
+                        <p class="card-text">Gestiona tu catálogo de productos</p>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('products') }}" class="btn btn-light btn-sm px-3">Ver Productos</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    {% if role == 'admin' %}
-    <div class="col-md-4">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title">Usuarios</h5>
-                <p class="card-text">Gestiona usuarios del sistema</p>
-                <a href="{{ url_for('user_management') }}" class="btn btn-light">Gestionar Usuarios</a>
+
+        {% if role == 'admin' %}
+        <div class="col-md-4">
+            <div class="card text-white bg-success h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="card-title">Usuarios</h5>
+                        <p class="card-text">Gestiona usuarios del sistema</p>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('user_management') }}" class="btn btn-light btn-sm px-3">Gestionar Usuarios</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    {% endif %}
-    
-    <div class="col-md-4">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h5 class="card-title">Reportes</h5>
-                <p class="card-text">Visualiza reportes y estadísticas</p>
-                <a href="#" class="btn btn-light">Ver Reportes</a>
+        {% endif %}
+
+        <div class="col-md-4">
+            <div class="card text-white bg-info h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="card-title">Reportes</h5>
+                        <p class="card-text">Visualiza reportes y estadísticas</p>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-light btn-sm px-3">Ver Reportes</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+

@@ -1,17 +1,39 @@
-.hero-section {
-    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
-    color: white;
+body {
+    background-color: #f8f9fa;
 }
 
 .card {
-    transition: transform 0.2s;
     border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+    border-radius: 1rem;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card .btn {
+    width: auto;             /* No ocupa todo el ancho */
+    display: inline-block;   /* Permite centrado correcto */
+    font-weight: 500;
+    border-radius: 0.5rem;
+}
+.text-center .btn {
+    margin: 0 auto;          /* Centra horizontalmente */
+}
+
+.btn-sm {
+    padding: 0.4rem 1rem;    /* Botón más pequeño */
+    font-size: 0.9rem;
+}
+h2 {
+    font-size: 2rem;
+    letter-spacing: 0.5px;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    color: white;
 }
 
 .btn-success {
