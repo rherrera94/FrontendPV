@@ -16,8 +16,10 @@ informados en requirements.txt**
 
 ```bash
 python -m venv venv
-python venv\Scripts\activate
-python pip install requirements.txt
+venv\Scripts\activate
+pip install --upgrade pip
+pip install requirements.txt
+
 ```
 
 #### Iniciar el proyecto de manera local
