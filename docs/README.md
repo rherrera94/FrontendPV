@@ -2,7 +2,6 @@
 
 EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
 
-**Nota: Cualquier aclaración que necesitemos hacer**
 
 # Instalación
 
@@ -18,7 +17,7 @@ informados en requirements.txt**
 python -m venv venv
 venv\Scripts\activate
 pip install --upgrade pip
-pip install requirements.txt
+pip install -r requirements.txt
 
 ```
 
@@ -26,4 +25,13 @@ pip install requirements.txt
 
 ```bash
 python app.py
+```
+
+#### Estructura
+
+```
+frontendpv/
+├── static/              # Archivos de configuración visual
+├── templates/           # Archivos HTML
+└── docs/                # Documentación del sistema
 ```
