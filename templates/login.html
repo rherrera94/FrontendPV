@@ -5,9 +5,9 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
+        <div class="card ajuste">
             <div class="card-header">
-                <h4 class="card-title mb-0">Iniciar Sesión</h4>
+                <h4 class="card-title mb-0"><center>Iniciar Sesión</center></h4>
             </div>
             <div class="card-body">
                 <form method="POST">
@@ -23,6 +23,7 @@
                             </div>
                         {% endif %}
                     </div>
+                    
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
                         {{ form.password(class="form-control") }}
@@ -34,13 +35,11 @@
                             </div>
                         {% endif %}
                     </div>
+                    
                     <div class="d-grid">
-                        {{ form.submit(class="btn btn-success") }}
+                        <center>{{ form.submit(class="btn btn-success") }}</center>
                     </div>
                 </form>
-                <div class="text-center mt-3">
-                    <p>Contacta al administrador para crear una cuenta</p>
-                </div>
             </div>
         </div>
     </div>

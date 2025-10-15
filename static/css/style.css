@@ -50,3 +50,17 @@ h2 {
     font-weight: bold;
     font-size: 1.5rem;
 }
+.ajuste{
+    max-width:380px;
+    margin:auto;
+}
+.card-body .form-control{
+    width:80%;
+    margin: 0 auto;
+}
+.card-body .form-label {
+  display: block;
+  text-align: left;
+  width: 100%;
+  margin-left:30px;
+}
