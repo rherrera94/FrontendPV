@@ -13,17 +13,17 @@ body {
 }
 
 .card .btn {
-    width: auto;             /* No ocupa todo el ancho */
-    display: inline-block;   /* Permite centrado correcto */
+    width: auto;          
+    display: inline-block;  
     font-weight: 500;
     border-radius: 0.5rem;
 }
 .text-center .btn {
-    margin: 0 auto;          /* Centra horizontalmente */
+    margin: 0 auto; 
 }
 
 .btn-sm {
-    padding: 0.4rem 1rem;    /* Botón más pequeño */
+    padding: 0.4rem 1rem;
     font-size: 0.9rem;
 }
 h2 {
@@ -63,4 +63,12 @@ h2 {
   text-align: left;
   width: 100%;
   margin-left:30px;
+}
+/* Estas son las alertas que se despliegan por ejemplo cuando te logueas o deslogueas */
+.alert {
+  max-width: 300px; /* necesito limitar el ancho para que sea mas estetico*/
+  margin: 1rem 0;   /*quiero que me aparezca bien a la izquierda el mensaje*/        
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: left;
 }
