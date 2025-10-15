@@ -26,8 +26,9 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
+# Características Principales
 
-#### Estructura
+## Estructura
 
 ```
 frontendpv/
@@ -35,3 +36,10 @@ frontendpv/
 ├── templates/           # Archivos HTML
 └── docs/                # Documentación del sistema
 ```
+## Módulos del Sistema
+- **Productos**: Catálogo completo de los productos disponiobles.
+- **Usuarios**: Consulta y gestión de usuarios.
+- **Personas**: Consulta y gestión de personas.
+- **Roles**: Consulta y gestión de Roles de usuario.
+- **Reservas**: Reserva de materiales o salas.
+- **Reportes**: Predicción de Reservas.
