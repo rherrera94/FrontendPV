@@ -7,6 +7,12 @@ EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
 
 El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) preferentemente la última versión.
 
+## Clonar el repositorio
+
+   ```bash
+    git clone https://github.com/rherrera94/FrontendPV.git
+    cd FrontendPV
+   ```
 ## Instalar dependencias
 
 **Nota: Se desarrollaran los comandos primero para crear un ambiente con el fin de que en ese ambiente se instalen las dependencias
