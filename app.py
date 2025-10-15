@@ -21,7 +21,7 @@ class RegisterForm(FlaskForm):
     role = SelectField('Rol', choices=[('user', 'Usuario'), ('admin', 'Administrador')], validators=[DataRequired()])
     submit = SubmitField('Registrar Usuario')
 
-# Mock data - en producción usarías una base de datos
+# DATOS DE PRUEBA HASTA QUE SE USE LA API REAL
 USERS = [
     {
         "id": 1,
@@ -49,10 +49,25 @@ PRODUCTS = [
     }
 ]
 
-# Helper functions
-def find_user_by_email(email):
-    return next((user for user in USERS if user['email'] == email), None)
+"""
+    Esta funcion busca y devuelve (de encontrarlo) 
+    un usuario según un email que recibe dentro como
+    parámetro.
 
+    Retorna:
+        - None si no encontro el email solicitado.
+        - El usuario solicitado si el mail existe dentro de la BBDD.
+"""
+def find_user_by_email(email):
+    for user in USERS:
+        if user['email'] == email:
+            return user
+    return None
+
+"""
+    Verifica si el rol del usuario es admin o no. Por lo tanto,
+    la funcion devolvera un booleano (True o False).
+"""
 def is_admin():
     return session.get('user_role') == 'admin'
 
@@ -72,12 +87,11 @@ def login_required(admin_only=False):
         return decorated_function
     return decorator
 
-# Routes
+
 @app.route('/')
 def index():
-    #return login()
     return redirect(url_for('login'))
-    #return render_template('index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -90,20 +104,18 @@ def login():
         #Cuando aprete el boton para loguearme
         email=request.form.get('email','').strip()
         password=request.form.get('password','')
+        user = find_user_by_email(form.email.data)
 
         #evaluo si se ingresaron los datos para el login
         if not email or not password:
             flash('Por favor complete todos los datos','error')
             return render_template('login.html')
         
-        if not find_user_by_email(form.email.data):
+        if not user:
             flash('Usuario o contraseña invalidos','error')
             return render_template('login.html')
-        
 
-    #form = LoginForm()
-    #if form.validate_on_submit():
-        user = find_user_by_email(form.email.data)
+        
         if user and user['password'] == form.password.data:  # En producción usar hash
             session['user'] = user['email']
             session['user_name'] = user['name']
@@ -113,7 +125,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Email o contraseña incorrectos', 'error')
-    #return render_template('login.html', form=form)
+
     
     return render_template('login.html', form=form)
 
