@@ -60,6 +60,8 @@ python app.py
 ```
 frontendpv/
 ├── static/              # Archivos de configuración visual
+│     ├── css
+│     └── js   
 ├── templates/           # Archivos HTML
 └── docs/                # Documentación del sistema
 ```
