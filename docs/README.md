@@ -4,11 +4,10 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/rherrera94/FrontendPV?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV?style=for-the-badge)
 <br>
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+
 
 ## Tabla de contenidos
+- [Tecnologías utilizadas](#Tecnologías-utilizadas)
 - [Instalación](#Instalación)
    - [Clonar](#Clonar-el-repositorio)
    - [Instalar dependencias](#Instalar-dependencias)
@@ -16,6 +15,23 @@
 - [Caracteristicas principales](#Características-principales)
    - [Estructura](#Estructura)
    - [Módulos del sistema](#Módulos-del-sistema)
+
+# 🧠 Tecnologías utilizadas
+<br>
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+
+
+<br>
+
+- **Python** – Lógica del frontend y conexión con backend Java.
+- **Flask** – Framework web principal.
+- **HTML5 / CSS3 / JavaScript** – Estructura y estilo del sitio.
+- **Bootstrap** – Diseño responsivo y componentes visuales.
 
 
 # Instalación
