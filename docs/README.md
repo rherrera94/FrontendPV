@@ -7,6 +7,8 @@
 
 
 ## Tabla de contenidos
+<br>
+
 - [Tecnologías utilizadas](#Tecnologías-utilizadas)
 - [Instalación](#Instalación)
    - [Clonar](#Clonar-el-repositorio)
@@ -15,8 +17,10 @@
 - [Caracteristicas principales](#Características-principales)
    - [Estructura](#Estructura)
    - [Módulos del sistema](#Módulos-del-sistema)
+- [Miembros del equipo](#Miembros-del-equipo)
 
-# 🧠 Tecnologías utilizadas
+<br>
+# Tecnologías utilizadas
 <br>
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
@@ -89,3 +93,9 @@ frontendpv/
 - **Reservas**: Reserva de materiales o salas.
 - **Reportes**: Predicción de Reservas.
 
+# Miembros del equipo
+
+
+<a href="https://github.com/rherrera94/FrontendPV/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rherrera94/FrontendPV" />
+</a>
