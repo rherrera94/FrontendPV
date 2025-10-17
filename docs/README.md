@@ -8,7 +8,14 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-
+## Tabla de contenidos
+- [Instalación](#-Instalación)
+- [Clonar](##-Clonar-el-repositorio)
+- [Instalar dependencias](##-Instalar-dependencias)
+- [Iniciar localmente](##-Iniciar-el-proyecto-de-manera-local)
+- [Caracteristicas principales](#-Características-principales)
+- [Estructura](##-Estructura)
+- [Módulos del sistema](##-Módulos-del-sistema)
 
 
 # Instalación
@@ -40,7 +47,7 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-# Características Principales
+# Características principales
 
 ## Estructura
 
@@ -50,7 +57,7 @@ frontendpv/
 ├── templates/           # Archivos HTML
 └── docs/                # Documentación del sistema
 ```
-## Módulos del Sistema
+## Módulos del sistema
 - **Productos**: Catálogo completo de los productos disponiobles.
 - **Usuarios**: Consulta y gestión de usuarios.
 - **Personas**: Consulta y gestión de personas.
