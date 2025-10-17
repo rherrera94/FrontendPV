@@ -3,8 +3,12 @@
 ![GitHub language count](https://img.shields.io/github/languages/count/rherrera94/FrontendPV?style=for-the-badge)
 ![GitHub last commit](https://img.shields.io/github/last-commit/rherrera94/FrontendPV?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV?style=for-the-badge)
+<br>
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
+
 
 
 # Instalación
