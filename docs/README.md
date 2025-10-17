@@ -9,13 +9,13 @@
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
 ## Tabla de contenidos
-- [Instalación](#-Instalación)
-- [Clonar](##-Clonar-el-repositorio)
-- [Instalar dependencias](##-Instalar-dependencias)
-- [Iniciar localmente](##-Iniciar-el-proyecto-de-manera-local)
-- [Caracteristicas principales](#-Características-principales)
-- [Estructura](##-Estructura)
-- [Módulos del sistema](##-Módulos-del-sistema)
+- [Instalación](#Instalación)
+- [Clonar](#Clonar-el-repositorio)
+- [Instalar dependencias](#Instalar-dependencias)
+- [Iniciar localmente](#Iniciar-el-proyecto-de-manera-local)
+- [Caracteristicas principales](#Características-principales)
+- [Estructura](#Estructura)
+- [Módulos del sistema](#Módulos-del-sistema)
 
 
 # Instalación
