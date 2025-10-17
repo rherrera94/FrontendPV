@@ -32,10 +32,13 @@ El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) 
    ```
 ## Instalar dependencias
 
+<br>
+
 > [!NOTE] 
 > **Se desarrollaran los comandos primero para crear un ambiente con el fin de que en ese ambiente se instalen las dependencias
 > y no afecten las instaladas en el sistema que se utilice. De realizar en producción directamente ir a la instalación de los >requerimientos
 >informados en requirements.txt**
+<br>
 
 ```bash
 python -m venv venv
