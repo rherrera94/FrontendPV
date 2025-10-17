@@ -78,14 +78,14 @@ python app.py
 
 ## Dependencias utilizadas
 
-| Biblioteca | Versión | Descripción | Documentación |
-|-------------|----------|--------------|----------------|
-| **[Flask](https://flask.palletsprojects.com/en/2.3.x/)** | 2.3.3 | Framework principal para el desarrollo web en Python. | 🔗 [flask.palletsprojects.com](https://flask.palletsprojects.com/en/2.3.x/) |
-| **[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.1.x/)** | 1.1.1 | Extensión de Flask que facilita la gestión y validación de formularios. | 🔗 [flask-wtf.readthedocs.io](https://flask-wtf.readthedocs.io/en/1.1.x/) |
-| **[WTForms](https://wtforms.readthedocs.io/en/3.0.x/)** | 3.0.1 | Librería para la creación y validación de formularios web. | 🔗 [wtforms.readthedocs.io](https://wtforms.readthedocs.io/en/3.0.x/) |
-| **[Werkzeug](https://werkzeug.palletsprojects.com/en/2.3.x/)** | 2.3.7 | Conjunto de utilidades WSGI para Flask (servidor y manejo de solicitudes HTTP). | 🔗 [werkzeug.palletsprojects.com](https://werkzeug.palletsprojects.com/en/2.3.x/) |
-| **[email-validator](https://email-validator.readthedocs.io/en/latest/)** | 1.3.1 | Permite validar direcciones de correo electrónico en formularios. | 🔗 [email-validator.readthedocs.io](https://email-validator.readthedocs.io/en/latest/) |
-| **[python-dotenv](https://saurabh-kumar.com/python-dotenv/)** | 1.0.0 | Carga variables de entorno desde un archivo `.env` para la configuración del proyecto. | 🔗 [saurabh-kumar.com/python-dotenv](https://saurabh-kumar.com/python-dotenv/) |
+| Biblioteca | Versión | Descripción |
+|-------------|----------|--------------|
+| **[Flask](https://flask.palletsprojects.com/en/2.3.x/)** | 2.3.3 | Framework principal para el desarrollo web en Python. |
+| **[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.1.x/)** | 1.1.1 | Extensión de Flask que facilita la gestión y validación de formularios. |
+| **[WTForms](https://wtforms.readthedocs.io/en/3.0.x/)** | 3.0.1 | Librería para la creación y validación de formularios web. |
+| **[Werkzeug](https://werkzeug.palletsprojects.com/en/2.3.x/)** | 2.3.7 | Conjunto de utilidades WSGI para Flask (servidor y manejo de solicitudes HTTP). |
+| **[email-validator](https://email-validator.readthedocs.io/en/latest/)** | 1.3.1 | Permite validar direcciones de correo electrónico en formularios. |
+| **[python-dotenv](https://saurabh-kumar.com/python-dotenv/)** | 1.0.0 | Carga variables de entorno desde un archivo `.env` para la configuración del proyecto. |
 
 
 ## Estructura
