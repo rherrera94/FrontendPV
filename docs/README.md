@@ -20,7 +20,7 @@
 
 # Instalación
 
-> [!NOTA]  
+> [!NOTE]  
 > El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) preferentemente la última versión.
 
 
