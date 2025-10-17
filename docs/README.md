@@ -10,12 +10,12 @@
 
 ## Tabla de contenidos
 - [Instalación](#Instalación)
-- [Clonar](#Clonar-el-repositorio)
-- [Instalar dependencias](#Instalar-dependencias)
-- [Iniciar localmente](#Iniciar-el-proyecto-de-manera-local)
+   - [Clonar](#Clonar-el-repositorio)
+   - [Instalar dependencias](#Instalar-dependencias)
+   - [Iniciar localmente](#Iniciar-el-proyecto-de-manera-local)
 - [Caracteristicas principales](#Características-principales)
-- [Estructura](#Estructura)
-- [Módulos del sistema](#Módulos-del-sistema)
+   - [Estructura](#Estructura)
+   - [Módulos del sistema](#Módulos-del-sistema)
 
 
 # Instalación
