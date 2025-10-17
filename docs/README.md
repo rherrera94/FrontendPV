@@ -95,8 +95,5 @@ frontendpv/
 
 # Miembros del equipo
 
-<a href="https://github.com/rherrera94"><img src="https://avatars.githubusercontent.com/u/67210471?s=400&u=6a2ce8477fd073ddcd6c15add1e92aadbca22a03&v=4" width="80" height="80" /></a>
-
-<a href="https://github.com/rherrera94/FrontendPV/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=rherrera94/FrontendPV" />
-</a>
+<a href="https://github.com/rherrera94"><img src="https://avatars.githubusercontent.com/u/67210471?s=400&u=6a2ce8477fd073ddcd6c15add1e92aadbca22a03&v=4" width="80" height="80" /></a><br>
+<sub><b>Rafael Herrera</b></sub>
