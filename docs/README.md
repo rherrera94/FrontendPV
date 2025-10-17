@@ -1,7 +1,7 @@
 # Programación de Vanguardia - Universidad de la Ciudad de Buenos Aires.
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/rherrera94/FrontendPV/tree/main)
+![GitHub language count](https://img.shields.io/github/languages/count/rherrera94/FrontendPV/tree/main)
+![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV/tree/main)
 
 EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
 
