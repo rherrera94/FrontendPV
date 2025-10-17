@@ -1,7 +1,8 @@
 # Programación de Vanguardia - Universidad de la Ciudad de Buenos Aires.
-![GitHub repo size](https://img.shields.io/github/repo-size/rherrera94/FrontendPV)
-![GitHub language count](https://img.shields.io/github/languages/count/rherrera94/FrontendPV)
-![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV)
+![GitHub repo size](https://img.shields.io/github/repo-size/rherrera94/FrontendPV?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/rherrera94/FrontendPV?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/rherrera94/FrontendPV?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV?style=for-the-badge)
 
 EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
 
