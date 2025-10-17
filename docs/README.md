@@ -5,6 +5,7 @@
 ![GitHub forks](https://img.shields.io/github/forks/rherrera94/FrontendPV?style=for-the-badge)
 <br>
 
+<h1 align="center" style="font-weight: bold;"> Plataforma de Gestión de Reservas 💻 </h1>
 
 ## Tabla de contenidos
 <br>
