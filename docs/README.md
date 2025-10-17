@@ -18,6 +18,7 @@
    - [Dependencias utilizadas](#Dependencias-utilizadas)
    - [Estructura](#Estructura)
    - [Módulos del sistema](#Módulos-del-sistema)
+   - [Rutas del frontend del sistema](#Rutas-del-frontend-del-sistema)
 - [Miembros del equipo](#Miembros-del-equipo)
 
 <br>
@@ -98,13 +99,26 @@ frontendpv/
 ├── templates/           # Archivos HTML
 └── docs/                # Documentación del sistema
 ```
+
 ## Módulos del sistema
+
 - **Productos**: Catálogo completo de los productos disponiobles.
 - **Usuarios**: Consulta y gestión de usuarios.
 - **Personas**: Consulta y gestión de personas.
 - **Roles**: Consulta y gestión de Roles de usuario.
 - **Reservas**: Reserva de materiales o salas.
 - **Reportes**: Predicción de Reservas.
+
+## Rutas del frontend del sistema
+
+| Ruta | Descripción | Acceso |
+|------|--------------|--------|
+| `/` | Página principal redirige a `/login` (Login del sistema). | Público |
+| `/dashboard` | Panel principal del sistema donde figuraran las diferentes secciones a las cuales se tiene acceso. | Todos los usuarios logueados |
+| `/products` | Listado y gestión de productos disponibles. | Todos los usuarios logueados |
+| `/user-managemen` | Gestión de usuarios registrados. | Administrador |
+| `/register` | Registro de usuarios. | Administrador |
+| `/logout` | Cierra la sesión del usuario actual. | Usuarios autenticados |
 
 # Miembros del equipo
 <table>
