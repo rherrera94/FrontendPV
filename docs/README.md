@@ -1,4 +1,7 @@
 # Programación de Vanguardia - Universidad de la Ciudad de Buenos Aires.
+![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
 
 EN ÉSTA SECCION SE ENCUENTRA EL FRONTEND DEL SISTEMA A DESARROLLAR.
 
@@ -49,3 +52,4 @@ frontendpv/
 - **Roles**: Consulta y gestión de Roles de usuario.
 - **Reservas**: Reserva de materiales o salas.
 - **Reportes**: Predicción de Reservas.
+
