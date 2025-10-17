@@ -20,7 +20,9 @@
 
 # Instalación
 
-El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) preferentemente la última versión.
+> [!NOTA]  
+> El proyecto necesita para funcionar [Python](https://www.python.org/downloads/) preferentemente la última versión.
+
 
 ## Clonar el repositorio
 
