@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField
 from wtforms.validators import DataRequired, Email, Length
-import json
 import os
 import requests
 
@@ -243,6 +242,7 @@ def products():
                 for a in data:
                     pid = a.get('idArticulo') or a.get('id') or a.get('id_articulo')
                     name = a.get('nombre') or a.get('name') or f'Articulo {pid}'
+                    # Se conserva el flag de disponibilidad para poder editar desde el frontend
                     disponible = a.get('disponible') if 'disponible' in a else a.get('available') if 'available' in a else None
                     price = a.get('price') or a.get('precio') or 0.0
                     description = ('Disponible' if disponible else 'No disponible') if disponible is not None else ''
@@ -252,7 +252,8 @@ def products():
                         'name': name,
                         'price': price,
                         'image': image,
-                        'description': description
+                        'description': description,
+                        'available': disponible
                     })
                 return render_template('products.html', products=products_list, source='backend')
         elif resp.status_code in (401, 403):
@@ -264,7 +265,14 @@ def products():
     except Exception as exc:
         print(f"Failed to fetch products from backend: {exc}")
 
-    return render_template('products.html', products=PRODUCTS, source='fallback')
+    # Fallback local: productos de ejemplo (sin disponibilidad editable)
+    # Para mantener consistencia en la plantilla, agregamos la clave 'available' como None
+    fallback = []
+    for p in PRODUCTS:
+        q = dict(p)
+        q['available'] = None
+        fallback.append(q)
+    return render_template('products.html', products=fallback, source='fallback')
 
 @app.route('/product/<int:product_id>')
 @login_required()
@@ -295,6 +303,63 @@ def logout():
     session.clear()
     flash('Has cerrado sesion', 'info')
     return redirect(url_for('login'))
+
+
+@app.route('/products/add', methods=['POST'])
+@login_required(admin_only=True)
+def add_product():
+    """
+    Crea un nuevo articulo en el backend Java utilizando el endpoint
+    POST /api/articulo/add. Requiere rol admin.
+    """
+    nombre = request.form.get('nombre', '').strip()
+    disponible = request.form.get('disponible') == 'on'
+    if not nombre:
+        flash('El nombre es obligatorio', 'error')
+        return redirect(url_for('products'))
+
+    payload = {
+        'nombre': nombre,
+        'disponible': bool(disponible)
+    }
+    try:
+        resp = backend_request('POST', '/api/articulo/add', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Articulo creado correctamente', 'success')
+        else:
+            flash(f'No se pudo crear el articulo (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error creando articulo: {exc}', 'error')
+    return redirect(url_for('products'))
+
+
+@app.route('/products/<int:product_id>/update', methods=['POST'])
+@login_required(admin_only=True)
+def update_product(product_id):
+    """
+    Actualiza un articulo existente en el backend Java utilizando el endpoint
+    PUT /api/articulo/update. Requiere rol admin.
+    """
+    nombre = request.form.get('nombre', '').strip()
+    disponible = request.form.get('disponible') == 'on'
+    if not nombre:
+        flash('El nombre es obligatorio', 'error')
+        return redirect(url_for('products'))
+
+    payload = {
+        'idArticulo': product_id,
+        'nombre': nombre,
+        'disponible': bool(disponible)
+    }
+    try:
+        resp = backend_request('PUT', '/api/articulo/update', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Articulo actualizado correctamente', 'success')
+        else:
+            flash(f'No se pudo actualizar el articulo (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error actualizando articulo: {exc}', 'error')
+    return redirect(url_for('products'))
 
 if __name__ == '__main__':
     app.run(debug=True)
