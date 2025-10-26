@@ -12,9 +12,12 @@
         <span class="badge bg-secondary mt-2 text-uppercase">{{ source }}</span>
         {% endif %}
     </div>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">
-        Volver al dashboard
-    </a>
+    <div class="d-flex gap-2">
+        {% if session.user_role == 'admin' %}
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">+ Agregar</button>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">Volver al dashboard</a>
+    </div>
 </div>
 
 {% if products and products|length > 0 %}
@@ -38,9 +41,19 @@
                 </div>
                 <h5 class="card-title">{{ p.name }}</h5>
                 <p class="card-text text-muted flex-grow-1">{{ p.description or 'Sin descripción disponible.' }}</p>
-                <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn btn-success btn-sm mt-auto">
-                    Ver detalle
-                </a>
+                <div class="d-flex gap-2 mt-auto">
+                    <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn btn-success btn-sm">
+                        Ver detalle
+                    </a>
+                    {% if session.user_role == 'admin' and p.id and p.available is not none %}
+                    <button class="btn btn-outline-secondary btn-sm btn-edit-product"
+                            data-product-id="{{ p.id }}"
+                            data-product-nombre="{{ p.name }}"
+                            data-product-disponible="{{ 'true' if p.available else 'false' }}">
+                        ✏ Editar
+                    </button>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -51,5 +64,66 @@
     No hay productos para mostrar en este momento.
     <div class="small text-muted">Prueba nuevamente más tarde o verifica la sincronización con el backend.</div>
 </div>
+{% endif %}
+{% if session.user_role == 'admin' %}
+<!-- Modal: Agregar producto -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="post" action="{{ url_for('add_product') }}">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="add-nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="add-nombre" name="nombre" required>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="on" id="add-disponible" name="disponible">
+                <label class="form-check-label" for="add-disponible">
+                    Disponible
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+ </div>
+
+<!-- Modal: Editar producto -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="post" id="edit-product-form">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="edit-nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="edit-nombre" name="nombre" required>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="on" id="edit-disponible" name="disponible">
+                <label class="form-check-label" for="edit-disponible">
+                    Disponible
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+ </div>
 {% endif %}
 {% endblock %}
