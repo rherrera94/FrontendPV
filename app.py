@@ -250,22 +250,39 @@ def users():
 def add_user():
     """
     Crea un nuevo usuario en el backend Java (POST /api/usuario/add)
+    Ahora envía correctamente la estructura JSON con el campo 'roles'
+    según el formato esperado por el backend Spring.
     """
     nombre = request.form.get('nombre', '').strip()
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
-    rol = request.form.get('rol', '').strip()
+    rol = request.form.get('rol', '').strip().upper()  # puede venir como 'ADMIN' o 'USER'
 
     if not nombre or not username or not password:
         flash('Todos los campos son obligatorios', 'error')
         return redirect(url_for('users'))
 
-    payload = {'nombre': nombre, 'username': username, 'password': password, 'rol': rol}
+    # Mapear el nombre del rol a su estructura esperada
+    if rol == 'ADMIN':
+        rol_id = 1
+        rol_nombre = 'ROLE_ADMIN'
+    else:
+        rol_id = 2
+        rol_nombre = 'ROLE_USER'
+
+    payload = {
+        "username": username,
+        "password": password,
+        "enabled": True,
+        "roles": [
+            {"id": rol_id, "nombre": rol_nombre}
+        ]
+    }
 
     try:
         resp = backend_request('POST', '/api/usuario/add', json=payload)
         if 200 <= resp.status_code < 300:
-            flash('Usuario creado correctamente', 'success')
+            flash(f'Usuario {username} creado correctamente con rol {rol_nombre}', 'success')
         else:
             flash(f'No se pudo crear el usuario (HTTP {resp.status_code})', 'error')
     except Exception as exc:
