@@ -1,0 +1,92 @@
+{% extends "bases.html" %}
+
+{% block title %}Usuarios - Sistema de Reservas{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1 text-success">Gestión de Usuarios</h1>
+        <p class="text-muted mb-0">Consulta y administra los usuarios registrados en el sistema.</p>
+        {% if source %}
+        <span class="badge bg-secondary mt-2 text-uppercase">{{ source }}</span>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Agregar</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">Volver al dashboard</a>
+    </div>
+</div>
+
+{% if users and users|length > 0 %}
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-success">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email / Usuario</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                    <span class="badge {% if u.rol == 'admin' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ u.rol }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info shadow-sm">
+    No hay usuarios registrados en este momento.
+    <div class="small text-muted">Prueba agregando uno nuevo.</div>
+</div>
+{% endif %}
+
+<!-- Modal: Agregar usuario -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="post" action="{{ url_for('add_user') }}">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre completo</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="rol" class="form-label">Rol</label>
+                <select class="form-select" id="rol" name="rol" required>
+                    <option value="USER" selected>Usuario</option>
+                    <option value="ADMIN">Administrador</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

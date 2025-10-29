@@ -29,10 +29,10 @@
                                 Administración
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('user_management') }}">Gestión de Usuarios</a></li>
+                                <li><a class="dropdown-item" href="{{url_for('users')}}">Gestión de Usuarios</a></li>
                                 <li><a class="dropdown-item" href="#">Gestión de Personas</a></li>
                                 <li><a class="dropdown-item" href="#">Gestión de Roles</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('register') }}">Registrar Usuario</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('users') }}">Registrar Usuario</a></li>
                             </ul>
                         </li>
                         {% endif %}

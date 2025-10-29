@@ -16,15 +16,12 @@ BACKEND_PASS = os.environ.get('BACKEND_PASS', '1234')
 
 
 def backend_url(path: str) -> str:
-    """Normaliza rutas hacia el backend (evita dobles barras)."""
+
     return f"{BACKEND_BASE.rstrip('/')}{path}"
 
 
 def authenticate_backend(username: str, password: str):
-    """
-    Realiza el login contra el backend Spring y devuelve el JSESSIONID.
-    Si falla, retorna (None, mensaje_de_error).
-    """
+
     login_url = backend_url('/auth/login')
     try:
         resp = requests.post(
@@ -54,10 +51,7 @@ def authenticate_backend(username: str, password: str):
 
 
 def backend_request(method: str, path: str, **kwargs):
-    """
-    Helper para invocar endpoints del backend reutilizando la cookie JSESSIONID guardada
-    en la sesión de Flask.
-    """
+
     cookies = kwargs.pop('cookies', {}) or {}
     session_id = session.get('backend_session_id')
     if session_id:
@@ -191,28 +185,6 @@ def login():
 
     return render_template('login.html', form=form)
 
-@app.route('/register', methods=['GET', 'POST'])
-@login_required(admin_only=True)
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        # Verificar si el usuario ya existe
-        if find_user_by_email(form.email.data):
-            flash('Este email ya está registrado', 'error')
-            return render_template('register.html', form=form)
-        
-        # Crear nuevo usuario
-        new_user = {
-            "id": len(USERS) + 1,
-            "name": form.name.data,
-            "email": form.email.data,
-            "password": form.password.data,  # En producción usar hash
-            "role": form.role.data
-        }
-        USERS.append(new_user)
-        flash(f'Usuario {form.name.data} registrado exitosamente', 'success')
-        return redirect(url_for('user_management'))
-    return render_template('register.html', form=form)
 
 @app.route('/dashboard')
 @login_required()
@@ -221,10 +193,86 @@ def dashboard():
                          user=session.get('user_name'),
                          role=session.get('user_role'))
 
-@app.route('/user-management')
+
+@app.route('/users')
 @login_required(admin_only=True)
-def user_management():
-    return render_template('user_management.html', users=USERS)
+def users():
+    """
+    Lista los usuarios desde el backend.
+    Ahora detecta correctamente los roles provenientes del backend
+    (campo 'roles' o 'rol', según formato del JSON).
+    """
+    try:
+        # Llamada al backend Java
+        resp = backend_request('GET', '/api/usuario/listar')
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, list):
+                users_list = []
+                for u in data:
+                    # --- Detección flexible del rol ---
+                    roles = u.get('roles') or []
+                    if isinstance(roles, list) and len(roles) > 0:
+                        # Si el backend devuelve lista de roles, tomamos el primero
+                        rol_nombre = roles[0].get('nombre') or 'ROLE_USER'
+                    else:
+                        # Si el backend devuelve un campo simple
+                        rol_nombre = u.get('rol') or u.get('role') or 'ROLE_USER'
+
+                    # Normalizamos quitando el prefijo ROLE_
+                    rol_simple = rol_nombre.replace('ROLE_', '') if isinstance(rol_nombre, str) else 'USER'
+
+                    # --- Construcción del usuario para el frontend ---
+                    users_list.append({
+                        'id': u.get('idUsuario') or u.get('id') or '',
+                        'nombre': u.get('nombre') or u.get('name') or '',
+                        'email': u.get('email') or u.get('username') or '',
+                        'rol': rol_simple
+                    })
+                # Render con origen backend
+                return render_template('users.html', users=users_list, source='backend')
+
+        # Si la sesión expira, se limpia y se redirige al login
+        elif resp.status_code in (401, 403):
+            flash('La sesión con el backend expiró. Inicia sesión nuevamente.', 'error')
+            session.pop('backend_session_id', None)
+            return redirect(url_for('logout'))
+
+    except Exception as exc:
+        flash(f"Error al obtener usuarios: {exc}", "error")
+
+    # Si hay error, renderiza la tabla vacía como fallback
+    return render_template('users.html', users=[], source='fallback')
+
+
+@app.route('/users/add', methods=['POST'])
+@login_required(admin_only=True)
+def add_user():
+    """
+    Crea un nuevo usuario en el backend Java (POST /api/usuario/add)
+    """
+    nombre = request.form.get('nombre', '').strip()
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    rol = request.form.get('rol', '').strip()
+
+    if not nombre or not username or not password:
+        flash('Todos los campos son obligatorios', 'error')
+        return redirect(url_for('users'))
+
+    payload = {'nombre': nombre, 'username': username, 'password': password, 'rol': rol}
+
+    try:
+        resp = backend_request('POST', '/api/usuario/add', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Usuario creado correctamente', 'success')
+        else:
+            flash(f'No se pudo crear el usuario (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error creando usuario: {exc}', 'error')
+    return redirect(url_for('users'))
+
+
 
 @app.route('/products')
 @login_required()
@@ -274,6 +322,7 @@ def products():
         fallback.append(q)
     return render_template('products.html', products=fallback, source='fallback')
 
+
 @app.route('/product/<int:product_id>')
 @login_required()
 def product_detail(product_id):
@@ -283,26 +332,11 @@ def product_detail(product_id):
         return redirect(url_for('products'))
     return render_template('product_detail.html', product=product)
 
+
 @app.route('/api/products')
 @login_required()
 def api_products():
     return jsonify(PRODUCTS)
-
-@app.route('/logout')
-def logout():
-    backend_session = session.get('backend_session_id')
-    if backend_session:
-        try:
-            requests.post(
-                backend_url('/auth/logout'),
-                cookies={'JSESSIONID': backend_session},
-                timeout=4
-            )
-        except requests.RequestException as exc:
-            print(f'Backend logout error: {exc}')
-    session.clear()
-    flash('Has cerrado sesion', 'info')
-    return redirect(url_for('login'))
 
 
 @app.route('/products/add', methods=['POST'])
@@ -360,6 +394,25 @@ def update_product(product_id):
     except Exception as exc:
         flash(f'Error actualizando articulo: {exc}', 'error')
     return redirect(url_for('products'))
+
+@app.route('/logout')
+def logout():
+    """
+    Cierra la sesión tanto en Flask como en el backend Java (si está activa).
+    """
+    backend_session = session.get('backend_session_id')
+    if backend_session:
+        try:
+            requests.post(
+                backend_url('/auth/logout'),
+                cookies={'JSESSIONID': backend_session},
+                timeout=4
+            )
+        except requests.RequestException as exc:
+            print(f'Backend logout error: {exc}')
+    session.clear()
+    flash('Has cerrado sesión', 'info')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
