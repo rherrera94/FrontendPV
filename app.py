@@ -160,28 +160,56 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    #Se verifica si el usuario esta logueado, de ser asi se dirige al dashboard
+    # Se verifica si el usuario esta logueado, de ser asi se dirige al dashboard
     if 'user' in session:
         return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         username = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
+        password = request.form.get('password', '').strip()
 
         if not username or not password:
             flash('Por favor complete todos los datos', 'error')
             return render_template('login.html', form=form)
 
+        # Intento de autenticación contra el backend
         session_id, mensaje = authenticate_backend(username, password)
-        if session_id:
-            session['backend_session_id'] = session_id
-            session['user'] = username
-            session['user_name'] = username
-            session['user_role'] = 'admin' if username == BACKEND_USER else 'user'
-            flash(mensaje or f'Bienvenido {username}!', 'success')
-            return redirect(url_for('dashboard'))
+        if not session_id:
+            flash('Usuario o contraseña inválidos', 'error')
+            return render_template('login.html', form=form)
 
-        flash('Usuario o contrasena invalidos (backend)', 'error')
-        return render_template('login.html', form=form)
+        # Guardamos la sesión backend
+        session['backend_session_id'] = session_id
+        session['user'] = username
+        session['user_name'] = username
+
+        # === Nuevo bloque: obtener rol real del backend ===
+        try:
+            resp = backend_request('GET', '/api/usuario/listar')
+            if resp.status_code == 200:
+                data = resp.json()
+                # Buscar el usuario logueado en la lista
+                for u in data:
+                    if u.get('username') == username:
+                        roles = u.get('roles') or []
+                        if isinstance(roles, list) and len(roles) > 0:
+                            rol_nombre = roles[0].get('nombre') or 'ROLE_USER'
+                        else:
+                            rol_nombre = 'ROLE_USER'
+                        # Guardamos rol sin prefijo
+                        session['user_role'] = rol_nombre.replace('ROLE_', '').lower()
+                        break
+                else:
+                    session['user_role'] = 'user'
+            else:
+                session['user_role'] = 'user'
+        except Exception as exc:
+            print(f"Error obteniendo roles del backend: {exc}")
+            session['user_role'] = 'user'
+        # ==================================================
+
+        flash(mensaje or f'Bienvenido {username}!', 'success')
+        return redirect(url_for('dashboard'))
 
     return render_template('login.html', form=form)
 
