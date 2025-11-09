@@ -459,5 +459,262 @@ def logout():
     flash('Has cerrado sesión', 'info')
     return redirect(url_for('login'))
 
+# ---------------------------
+#  Reservas (listar/crear/borrar/actualizar)
+# ---------------------------
+
+@app.route('/reservas', methods=['GET'])
+@login_required()
+def reservas():
+    """Vista principal de reservas: lista existentes y muestra formulario de creación."""
+    reservas_list = []
+    personas = []
+    salas = []
+    articulos = []
+    # 1) Traer reservas
+    try:
+        r = backend_request('GET', '/api/reservas/listar')
+        if 200 <= r.status_code < 300:
+            try:
+                data = r.json() or []
+            except ValueError:
+                data = []
+            for res in data:
+                rid = res.get('id')
+                persona = res.get('persona') or {}
+                sala = res.get('sala') or {}
+                articulo = res.get('articulo') or {}
+                reservas_list.append({
+                    'id': rid,
+                    'persona': persona,
+                    'sala': sala if sala else None,
+                    'articulo': articulo if articulo else None,
+                    'inicio': res.get('fechaHoraInicio'),
+                    'fin': res.get('fechaHoraFin')
+                })
+        elif r.status_code in (401, 403):
+            flash('Sesión expirada en backend. Vuelve a iniciar sesión.', 'error')
+            return redirect(url_for('logout'))
+        else:
+            flash(f'No se pudieron obtener reservas (HTTP {r.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error consultando reservas: {exc}', 'error')
+
+    # 2) Traer datos para selects (si falla, se deja vacío)
+    try:
+        pr = backend_request('GET', '/api/persona/listar')
+        if 200 <= pr.status_code < 300:
+            personas = pr.json() or []
+    except Exception:
+        personas = []
+    try:
+        sr = backend_request('GET', '/api/salas/listar')
+        if 200 <= sr.status_code < 300:
+            salas = sr.json() or []
+    except Exception:
+        salas = []
+    try:
+        ar = backend_request('GET', '/api/articulo/listar')
+        if 200 <= ar.status_code < 300:
+            articulos = ar.json() or []
+    except Exception:
+        articulos = []
+
+    return render_template('reservas.html', reservas=reservas_list, personas=personas, salas=salas, articulos=articulos)
+
+
+@app.route('/reservas/crear', methods=['POST'])
+@login_required()
+def reservas_crear():
+    """Crea una reserva en el backend (USER/ADMIN)."""
+    persona_id = request.form.get('persona_id')
+    sala_id = request.form.get('sala_id') or ''
+    articulo_id = request.form.get('articulo_id') or ''
+    inicio = request.form.get('inicio')  # YYYY-MM-DDTHH:MM
+    fin = request.form.get('fin')
+
+    def norm(dt: str) -> str:
+        if not dt:
+            return dt
+        return dt if len(dt) > 16 else dt + ':00'
+
+    payload = {
+        'persona': {'idPersona': int(persona_id)} if persona_id else None,
+        'sala': {'idSala': int(sala_id)} if sala_id else None,
+        'articulo': {'idArticulo': int(articulo_id)} if articulo_id else None,
+        'fechaHoraInicio': norm(inicio),
+        'fechaHoraFin': norm(fin)
+    }
+
+    if not payload['persona']:
+        flash('Debe seleccionar una persona', 'error')
+        return redirect(url_for('reservas'))
+    if bool(payload['sala']) == bool(payload['articulo']):
+        flash('Debe seleccionar una sala O un artículo (solo uno).', 'error')
+        return redirect(url_for('reservas'))
+    if not payload['fechaHoraInicio'] or not payload['fechaHoraFin']:
+        flash('Debe indicar inicio y fin', 'error')
+        return redirect(url_for('reservas'))
+
+    try:
+        resp = backend_request('POST', '/api/reservas/crear', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Reserva creada correctamente', 'success')
+        elif resp.status_code in (401, 403):
+            flash('No autorizado. Vuelve a iniciar sesión.', 'error')
+            return redirect(url_for('logout'))
+        else:
+            try:
+                j = resp.json()
+                msg = j.get('message') or j.get('error') or str(j)
+            except ValueError:
+                msg = resp.text
+            flash(f'No se pudo crear la reserva: {msg}', 'error')
+    except Exception as exc:
+        flash(f'Error creando reserva: {exc}', 'error')
+    return redirect(url_for('reservas'))
+
+
+@app.route('/reservas/<int:reserva_id>/borrar', methods=['POST'])
+@login_required(admin_only=True)
+def reservas_borrar(reserva_id: int):
+    try:
+        resp = backend_request('DELETE', f'/api/reservas/borrar/{reserva_id}')
+        if 200 <= resp.status_code < 300:
+            flash('Reserva eliminada', 'success')
+        else:
+            flash(f'No se pudo borrar (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error borrando reserva: {exc}', 'error')
+    return redirect(url_for('reservas'))
+
+
+@app.route('/reservas/<int:reserva_id>/actualizar', methods=['POST'])
+@login_required(admin_only=True)
+def reservas_actualizar(reserva_id: int):
+    persona_id = request.form.get('persona_id')
+    sala_id = request.form.get('sala_id') or ''
+    articulo_id = request.form.get('articulo_id') or ''
+    inicio = request.form.get('inicio')
+    fin = request.form.get('fin')
+
+    def norm(dt: str) -> str:
+        if not dt:
+            return dt
+        return dt if len(dt) > 16 else dt + ':00'
+
+    payload = {
+        'id': int(reserva_id),
+        'persona': {'idPersona': int(persona_id)} if persona_id else None,
+        'sala': {'idSala': int(sala_id)} if sala_id else None,
+        'articulo': {'idArticulo': int(articulo_id)} if articulo_id else None,
+        'fechaHoraInicio': norm(inicio),
+        'fechaHoraFin': norm(fin)
+    }
+
+    if bool(payload['sala']) == bool(payload['articulo']):
+        flash('Debe seleccionar una sala O un artículo (solo uno).', 'error')
+        return redirect(url_for('reservas'))
+
+    try:
+        resp = backend_request('PUT', f'/api/reservas/actualizar/{reserva_id}', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Reserva actualizada', 'success')
+        else:
+            try:
+                j = resp.json()
+                msg = j.get('message') or j.get('error') or str(j)
+            except ValueError:
+                msg = resp.text
+            flash(f'No se pudo actualizar la reserva: {msg}', 'error')
+    except Exception as exc:
+        flash(f'Error actualizando reserva: {exc}', 'error')
+    return redirect(url_for('reservas'))
+
+
+# ---------------------------
+#  Personas (listar/crear/actualizar/eliminar)
+# ---------------------------
+
+@app.route('/personas')
+@login_required()
+def personas():
+    """Lista personas desde el backend Java."""
+    try:
+        resp = backend_request('GET', '/api/persona/listar')
+        if resp.status_code == 200:
+            data = resp.json() or []
+            personas_list = []
+            for p in data:
+                personas_list.append({
+                    'idPersona': p.get('idPersona') or p.get('id') or '',
+                    'nombre': p.get('nombre') or '',
+                    'email': p.get('email') or ''
+                })
+            return render_template('personas.html', personas=personas_list)
+        elif resp.status_code in (401, 403):
+            flash('Sesi\u00f3n con backend expirada. Vuelve a iniciar sesi\u00f3n.', 'error')
+            return redirect(url_for('logout'))
+        else:
+            flash(f'No se pudieron obtener personas (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error consultando personas: {exc}', 'error')
+    return render_template('personas.html', personas=[])
+
+
+@app.route('/personas/add', methods=['POST'])
+@login_required(admin_only=True)
+def personas_add():
+    nombre = request.form.get('nombre', '').strip()
+    email = request.form.get('email', '').strip()
+    if not nombre or not email:
+        flash('Nombre y email son obligatorios', 'error')
+        return redirect(url_for('personas'))
+    payload = {'nombre': nombre, 'email': email}
+    try:
+        resp = backend_request('POST', '/api/persona/add', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Persona creada correctamente', 'success')
+        else:
+            flash(f'No se pudo crear la persona (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error creando persona: {exc}', 'error')
+    return redirect(url_for('personas'))
+
+
+@app.route('/personas/<int:id_persona>/update', methods=['POST'])
+@login_required(admin_only=True)
+def personas_update(id_persona: int):
+    nombre = request.form.get('nombre', '').strip()
+    email = request.form.get('email', '').strip()
+    if not nombre or not email:
+        flash('Nombre y email son obligatorios', 'error')
+        return redirect(url_for('personas'))
+    payload = {'idPersona': id_persona, 'nombre': nombre, 'email': email}
+    try:
+        resp = backend_request('PUT', '/api/persona/actualizar', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Persona actualizada', 'success')
+        else:
+            flash(f'No se pudo actualizar (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error actualizando persona: {exc}', 'error')
+    return redirect(url_for('personas'))
+
+
+@app.route('/personas/<int:id_persona>/delete', methods=['POST'])
+@login_required(admin_only=True)
+def personas_delete(id_persona: int):
+    try:
+        resp = backend_request('DELETE', f'/api/persona/eliminar/{id_persona}')
+        if 200 <= resp.status_code < 300:
+            flash('Persona eliminada', 'success')
+        else:
+            flash(f'No se pudo eliminar (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error eliminando persona: {exc}', 'error')
+    return redirect(url_for('personas'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

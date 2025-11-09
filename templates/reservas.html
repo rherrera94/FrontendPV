@@ -1,0 +1,139 @@
+{% extends "bases.html" %}
+
+{% block title %}Reservas - Sistema de Reservas{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <h3 class="mb-3">Gestión de Reservas</h3>
+
+  <div class="card mb-4">
+    <div class="card-header">Crear reserva</div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('reservas_crear') }}" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Persona</label>
+          <select class="form-select" name="persona_id" required>
+            <option value="" selected disabled>Seleccione una persona</option>
+            {% for p in personas %}
+            <option value="{{ p.idPersona }}">{{ p.nombre }} ({{ p.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12"></div>
+
+        <div class="col-md-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipo" id="tipoSala" value="sala" checked>
+            <label class="form-check-label" for="tipoSala">Reservar Sala</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipo" id="tipoArticulo" value="articulo">
+            <label class="form-check-label" for="tipoArticulo">Reservar Artículo</label>
+          </div>
+        </div>
+
+        <div class="col-md-4" id="groupSala">
+          <label class="form-label">Sala</label>
+          <select class="form-select" name="sala_id">
+            <option value="" selected>Seleccione sala</option>
+            {% for s in salas %}
+            <option value="{{ s.idSala }}">{{ s.nombre }} (cap. {{ s.capacidad }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4 d-none" id="groupArticulo">
+          <label class="form-label">Artículo</label>
+          <select class="form-select" name="articulo_id">
+            <option value="" selected>Seleccione artículo</option>
+            {% for a in articulos %}
+            <option value="{{ a.idArticulo }}">{{ a.nombre }} {% if a.disponible is not none %} - {{ 'Disponible' if a.disponible else 'No disponible' }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Inicio</label>
+          <input type="datetime-local" class="form-control" name="inicio" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fin</label>
+          <input type="datetime-local" class="form-control" name="fin" required>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Crear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Reservas existentes</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Persona</th>
+              <th>Recurso</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reservas %}
+            <tr>
+              <td>{{ r.id }}</td>
+              <td>{{ r.persona.nombre }} ({{ r.persona.email }})</td>
+              <td>
+                {% if r.sala %}
+                  Sala: {{ r.sala.nombre }}
+                {% elif r.articulo %}
+                  Artículo: {{ r.articulo.nombre }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td>{{ r.inicio }}</td>
+              <td>{{ r.fin }}</td>
+              <td class="text-end">
+                {% if session.user_role == 'admin' %}
+                <form method="post" action="{{ url_for('reservas_borrar', reserva_id=r.id) }}" onsubmit="return confirm('¿Borrar la reserva {{ r.id }}?');" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center py-3">No hay reservas</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle entre Sala y Artículo
+  const tipoSala = document.getElementById('tipoSala');
+  const tipoArticulo = document.getElementById('tipoArticulo');
+  const groupSala = document.getElementById('groupSala');
+  const groupArticulo = document.getElementById('groupArticulo');
+  function syncTipo() {
+    const isSala = tipoSala.checked;
+    groupSala.classList.toggle('d-none', !isSala);
+    groupArticulo.classList.toggle('d-none', isSala);
+  }
+  if (tipoSala && tipoArticulo) {
+    tipoSala.addEventListener('change', syncTipo);
+    tipoArticulo.addEventListener('change', syncTipo);
+    syncTipo();
+  }
+</script>
+{% endblock %}
+
