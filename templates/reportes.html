@@ -1,0 +1,143 @@
+{% extends "bases.html" %}
+
+{% block title %}Reportes - Sistema de Reservas{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0 text-success">Reportes de Reservas</h3>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">Volver</a>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="small text-muted">Total de Reservas</div>
+          <div class="h3 mb-0">{{ total }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <canvas id="chartFechas" height="70"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header">Reservas por Persona (Top 10)</div>
+        <div class="card-body">
+          <canvas id="chartPersonas" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header">Reservas por Recurso (Top 10)</div>
+        <div class="card-body">
+          <canvas id="chartRecursos" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-3">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header">Calendario de Reservas</div>
+        <div class="card-body">
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Librerías vía CDN (cargan en el navegador) -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- FullCalendar en versión GLOBAL (incluye plugins), necesario para usar FullCalendar.Calendar en script tags -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<script>
+  // Datos desde backend (inyectados por Flask)
+  const personasLabels = {{ personas_labels|safe }};
+  const personasVals = {{ personas_vals|safe }};
+  const recursoLabels = {{ recurso_labels|safe }};
+  const recursoVals = {{ recurso_vals|safe }};
+  const fechaLabels = {{ fecha_labels|safe }};
+  const fechaVals = {{ fecha_vals|safe }};
+  const eventos = {{ eventos|safe }};
+
+  // Util: paleta simple
+  const palette = ['#2a9d8f','#e76f51','#264653','#e9c46a','#f4a261','#6a4c93','#1982c4','#8ac926','#ff595e','#ffca3a'];
+
+  // Line chart por fechas
+  new Chart(document.getElementById('chartFechas'), {
+    type: 'line',
+    data: {
+      labels: fechaLabels,
+      datasets: [{
+        label: 'Reservas por fecha (inicio)',
+        data: fechaVals,
+        borderColor: palette[0],
+        backgroundColor: 'rgba(42,157,143,0.15)',
+        fill: true,
+        tension: 0.2
+      }]
+    },
+    options: {responsive: true, maintainAspectRatio: false}
+  });
+
+  // Barras por persona
+  new Chart(document.getElementById('chartPersonas'), {
+    type: 'bar',
+    data: {
+      labels: personasLabels,
+      datasets: [{
+        label: 'Reservas',
+        data: personasVals,
+        backgroundColor: palette
+      }]
+    },
+    options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false}
+  });
+
+  // Barras por recurso
+  new Chart(document.getElementById('chartRecursos'), {
+    type: 'bar',
+    data: {
+      labels: recursoLabels,
+      datasets: [{
+        label: 'Reservas',
+        data: recursoVals,
+        backgroundColor: palette
+      }]
+    },
+    options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false}
+  });
+
+  // Calendario
+  document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('calendar');
+    if (!el || typeof FullCalendar === 'undefined') { return; }
+    const calendar = new FullCalendar.Calendar(el, {
+      initialView: 'dayGridMonth',
+      height: 650,
+      locale: 'es',
+      events: eventos.map(e => ({
+        title: e.title,
+        start: e.start,
+        end: e.end
+      }))
+    });
+    calendar.render();
+  });
+</script>
+{% endblock %}

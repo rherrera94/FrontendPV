@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+import json
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField
 from wtforms.validators import DataRequired, Email, Length
@@ -631,6 +632,96 @@ def reservas_actualizar(reserva_id: int):
         flash(f'Error actualizando reserva: {exc}', 'error')
     return redirect(url_for('reservas'))
 
+
+# ---------------------------
+#  Reportes
+# ---------------------------
+
+@app.route('/reportes', methods=['GET'])
+@login_required()
+def reportes():
+    """Dashboard de reportes: contadores, calendario y estadísticas.
+    Calcula métricas a partir de /api/reservas/listar.
+    """
+    reservas = []
+    try:
+        r = backend_request('GET', '/api/reservas/listar')
+        if 200 <= r.status_code < 300:
+            try:
+                reservas = r.json() or []
+            except ValueError:
+                reservas = []
+        elif r.status_code in (401, 403):
+            flash('Sesión con backend expirada. Inicia sesión de nuevo.', 'error')
+            return redirect(url_for('logout'))
+        else:
+            flash(f'No se pudieron obtener reservas (HTTP {r.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error consultando reservas: {exc}', 'error')
+
+    # Normalización + métricas
+    total = len(reservas)
+    por_persona = {}
+    por_recurso = {}
+    por_fecha = {}
+    eventos = []
+
+    def inc(d, key):
+        if not key:
+            key = 'Desconocido'
+        d[key] = d.get(key, 0) + 1
+
+    for res in reservas:
+        persona = (res.get('persona') or {}).get('nombre') or (res.get('persona') or {}).get('email') or 'N/D'
+        sala = (res.get('sala') or {}).get('nombre')
+        articulo = (res.get('articulo') or {}).get('nombre')
+        inicio = res.get('fechaHoraInicio')
+        fin = res.get('fechaHoraFin')
+
+        inc(por_persona, persona)
+        if sala:
+            recurso_name = "Sala: " + str(sala)
+        elif articulo:
+            recurso_name = "Artículo: " + str(articulo)
+        else:
+            recurso_name = 'Recurso: N/D'
+        inc(por_recurso, recurso_name)
+
+        if inicio:
+            fecha_key = (inicio.split('T')[0] if 'T' in inicio else inicio.split(' ')[0])
+            inc(por_fecha, fecha_key)
+
+        # Evento para calendario
+        eventos.append({
+            'title': f"{persona} - {recurso_name}",
+            'start': inicio,
+            'end': fin
+        })
+
+    # Top N para gráficos
+    def topn(d, n=10):
+        items = sorted(d.items(), key=lambda kv: kv[1], reverse=True)[:n]
+        labels = [k for k, _ in items]
+        values = [v for _, v in items]
+        return labels, values
+
+    personas_labels, personas_vals = topn(por_persona, 10)
+    recurso_labels, recurso_vals = topn(por_recurso, 10)
+    fecha_labels = sorted(por_fecha.keys())
+    fecha_vals = [por_fecha[k] for k in fecha_labels]
+
+    # Pasar datos como JSON para Chart.js/FullCalendar
+    return render_template(
+        'reportes.html',
+        total=total,
+        personas_labels=json.dumps(personas_labels, ensure_ascii=False),
+        personas_vals=json.dumps(personas_vals),
+        recurso_labels=json.dumps(recurso_labels, ensure_ascii=False),
+        recurso_vals=json.dumps(recurso_vals),
+        fecha_labels=json.dumps(fecha_labels),
+        fecha_vals=json.dumps(fecha_vals),
+        eventos=json.dumps(eventos, ensure_ascii=False)
+    )
 
 # ---------------------------
 #  Personas (listar/crear/actualizar/eliminar)
