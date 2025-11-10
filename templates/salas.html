@@ -1,0 +1,182 @@
+{% extends "bases.html" %}
+
+{% block title %}Salas - Sistema de Reservas{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1 text-success">Listado de Salas</h1>
+        <p class="text-muted mb-0">Consulta y administra las salas disponibles.</p>
+        {% if source %}
+            <span class="badge bg-secondary mt-2 text-uppercase">{{ source }}</span>
+        {% endif %}
+    </div>
+
+    <div class="d-flex gap-2">
+        {% if session.user_role == 'admin' %}
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSalaModal">+ Agregar</button>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">Volver al Dashboard</a>
+    </div>
+</div>
+
+{% if salas and salas|length > 0 %}
+<div class="row g-4">
+    {% for s in salas %}
+    <div class="col-12 col-sm-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body d-flex flex-column">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success">ID {{ s.id }}</span>
+
+                    {% if s.capacidad is not none %}
+                    <span class="badge text-bg-light">Capacidad: {{ s.capacidad }}</span>
+                    {% endif %}
+                </div>
+
+                <h5 class="card-title">{{ s.name }}</h5>
+
+                <div class="d-flex gap-2 mt-auto">
+                    {% if session.user_role == 'admin' %}
+                    <button
+                        class="btn btn-outline-secondary btn-sm btn-edit-sala"
+                        data-sala-id="{{ s.id }}"
+                        data-sala-nombre="{{ s.name }}"
+                        data-sala-capacidad="{{ s.capacidad if s.capacidad is not none else '' }}"
+                    >
+                        ✏ Editar
+                    </button>
+
+                    <form method="post" action="{{ url_for('salas_delete', id_sala=s.id) }}"
+                          onsubmit="return confirm('¿Eliminar la sala?')">
+                        <button class="btn btn-outline-danger btn-sm">🗑 Eliminar</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="alert alert-info shadow-sm">
+    No hay salas para mostrar en este momento.
+    <div class="small text-muted">Prueba nuevamente más tarde o verifica la conexión con el backend.</div>
+</div>
+{% endif %}
+
+
+{% if session.user_role == 'admin' %}
+<!-- ==================================================================== -->
+<!-- SECCION PARA AGREGAR UNA NUEVA SALA -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="addSalaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Sala</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="post" action="{{ url_for('salas_add') }}">
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="add-nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="add-nombre" name="nombre" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="add-capacidad" class="form-label">Capacidad</label>
+                        <input type="number" min="1" step="1" class="form-control" id="add-capacidad" name="capacidad" required>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ==================================================================== -->
+<!-- SECCION PARA EDITAR LA SALA-->
+<!-- ==================================================================== -->
+<div class="modal fade" id="editSalaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Sala</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="post" id="edit-sala-form">
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="edit-nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="edit-nombre" name="nombre" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-capacidad" class="form-label">Capacidad</label>
+                        <input type="number" min="1" step="1" class="form-control" id="edit-capacidad" name="capacidad" required>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ==================================================================== -->
+<!-- ESTA SECCION LO QUE HARA ES LA PARTE DE LA ACTUALIZACION DE LA SALA -->
+<!-- ==================================================================== -->
+ <!-- CUANDO HACES CLICK EN EL BOTON Guardar Cambios PARA ACTUALIZAR SE DISPARA ESTA FUNCION -->
+<script>
+document.addEventListener('click', function (e) {
+
+    if (e.target && e.target.classList.contains('btn-edit-sala')) {
+        e.preventDefault();
+
+        const id = e.target.getAttribute('data-sala-id');
+        const nombre = e.target.getAttribute('data-sala-nombre') || '';
+        const capacidadAttr = e.target.getAttribute('data-sala-capacidad');
+        const capacidad = (capacidadAttr && !isNaN(capacidadAttr)) ? parseInt(capacidadAttr, 10) : '';
+
+        const form = document.getElementById('edit-sala-form');
+
+        // Construyo la URL: /salas/0/update -> /salas/{id}/update
+        const baseUrl = "{{ url_for('salas_update', id_sala=0) }}";
+        form.action = baseUrl.replace('/0/update', `/${id}/update`);
+
+        document.getElementById('edit-nombre').value = nombre;
+        document.getElementById('edit-capacidad').value = capacidad;
+
+        const modal = new bootstrap.Modal(document.getElementById('editSalaModal'));
+        modal.show();
+    }
+
+});
+</script>
+{% endif %}
+
+{% endblock %}

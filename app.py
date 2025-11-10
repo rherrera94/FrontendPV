@@ -806,6 +806,133 @@ def personas_delete(id_persona: int):
         flash(f'Error eliminando persona: {exc}', 'error')
     return redirect(url_for('personas'))
 
+#RUTAS DE SALAS
+
+
+@app.route('/salas')
+@login_required()
+def salas():
+    """Lista salas desde el backend Java."""
+    try:
+        resp = backend_request('GET', '/api/salas/listar')
+        if resp.status_code == 200:
+            data = resp.json() or []
+            salas_list = []
+            for s in data:
+                sid = s.get('idSala') or s.get('id') or s.get('id_sala')
+                nombre = s.get('nombre') or s.get('name') or f"Sala {sid}"
+                capacidad = s.get('Capacidad')
+                if capacidad is None:
+                    capacidad = s.get('capacidad')  # por si viene en minúsculas
+                try:
+                    capacidad = int(capacidad) if capacidad is not None else None
+                except (TypeError, ValueError):
+                    capacidad = None
+
+                salas_list.append({
+                    'id': sid,
+                    'name': nombre,
+                    'capacidad': capacidad
+                })
+            return render_template('salas.html', salas=salas_list, source='backend')
+        elif resp.status_code in (401, 403):
+            flash('Sesión con backend expirada. Inicia sesión de nuevo.', 'error')
+            session.pop('backend_session_id', None)
+            return redirect(url_for('logout'))
+        else:
+            flash(f'No se pudieron obtener salas (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error consultando salas: {exc}', 'error')
+    # Fallback vacío (como en productos)
+    return render_template('salas.html', salas=[], source='fallback')
+
+
+@app.route('/salas/add', methods=['POST'])
+@login_required(admin_only=True)
+def salas_add():
+    """Crea una nueva sala usando POST /api/salas/crear."""
+    nombre = request.form.get('nombre', '').strip()
+    capacidad_raw = request.form.get('capacidad', '').strip()
+
+    if not nombre:
+        flash('El nombre es obligatorio', 'error')
+        return redirect(url_for('salas'))
+    try:
+        capacidad = int(capacidad_raw)
+        if capacidad < 1:
+            raise ValueError
+    except ValueError:
+        flash('Capacidad debe ser un entero ≥ 1.', 'error')
+        return redirect(url_for('salas'))
+
+    payload = {'nombre': nombre, 'capacidad': capacidad}  # 👉 en minúscula
+
+    try:
+        resp = backend_request('POST', '/api/salas/crear', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Sala creada correctamente', 'success')
+        else:
+            try:
+                j = resp.json()
+                msg = j.get('message') or j.get('error') or j.get('detalle') or str(j)
+            except ValueError:
+                msg = (resp.text or '').strip()
+            flash(f'No se pudo crear la sala (HTTP {resp.status_code}): {msg}', 'error')
+    except Exception as exc:
+        flash(f'Error creando sala: {exc}', 'error')
+    return redirect(url_for('salas'))
+
+
+@app.route('/salas/<int:id_sala>/update', methods=['POST'])
+@login_required(admin_only=True)
+def salas_update(id_sala: int):
+    """Actualiza una sala usando PUT /api/salas/actualizar."""
+    nombre = request.form.get('nombre', '').strip()
+    capacidad_raw = request.form.get('capacidad', '').strip()
+
+    if not nombre:
+        flash('El nombre es obligatorio', 'error')
+        return redirect(url_for('salas'))
+    try:
+        capacidad = int(capacidad_raw)
+        if capacidad < 1:  # el backend valida Min(1)
+            raise ValueError
+    except ValueError:
+        flash('Capacidad debe ser un entero ≥ 1.', 'error')
+        return redirect(url_for('salas'))
+
+    # 👉 Enviar en minúscula
+    payload = {'idSala': id_sala, 'nombre': nombre, 'capacidad': capacidad}
+
+    try:
+        resp = backend_request('PUT', '/api/salas/actualizar', json=payload)
+        if 200 <= resp.status_code < 300:
+            flash('Sala actualizada correctamente', 'success')
+        else:
+            try:
+                j = resp.json()
+                msg = j.get('message') or j.get('error') or str(j)
+            except ValueError:
+                msg = resp.text
+            flash(f'No se pudo actualizar la sala (HTTP {resp.status_code}): {msg}', 'error')
+    except Exception as exc:
+        flash(f'Error actualizando sala: {exc}', 'error')
+    return redirect(url_for('salas'))
+
+
+@app.route('/salas/<int:id_sala>/delete', methods=['POST'])
+@login_required(admin_only=True)
+def salas_delete(id_sala: int):
+    """Borra una sala usando DELETE /api/salas/borrar/{id}."""
+    try:
+        resp = backend_request('DELETE', f'/api/salas/borrar/{id_sala}')
+        if 200 <= resp.status_code < 300:
+            flash('Sala eliminada', 'success')
+        else:
+            flash(f'No se pudo eliminar la sala (HTTP {resp.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error eliminando sala: {exc}', 'error')
+    return redirect(url_for('salas'))
 
 if __name__ == '__main__':
     app.run(debug=True)
