@@ -35,6 +35,7 @@
       - [Reservas](#Reservas)
       - [Salas](#Salas)
       - [Reportes](#Reportes)
+      - [Prediccion de reservas](#Predicción-de-Reservas)
 
 <br>
 
@@ -94,14 +95,20 @@ python app.py
 
 ## Dependencias utilizadas
 
+## Dependencias utilizadas
+
 | Biblioteca | Versión | Descripción |
 |-------------|----------|--------------|
 | **[Flask](https://flask.palletsprojects.com/en/2.3.x/)** | 2.3.3 | Framework principal para el desarrollo web en Python. |
-| **[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.1.x/)** | 1.1.1 | Extensión de Flask que facilita la gestión y validación de formularios. |
-| **[WTForms](https://wtforms.readthedocs.io/en/3.0.x/)** | 3.0.1 | Librería para la creación y validación de formularios web. |
-| **[Werkzeug](https://werkzeug.palletsprojects.com/en/2.3.x/)** | 2.3.7 | Conjunto de utilidades WSGI para Flask (servidor y manejo de solicitudes HTTP). |
-| **[email-validator](https://email-validator.readthedocs.io/en/latest/)** | 1.3.1 | Permite validar direcciones de correo electrónico en formularios. |
-| **[python-dotenv](https://saurabh-kumar.com/python-dotenv/)** | 1.0.0 | Carga variables de entorno desde un archivo `.env` para la configuración del proyecto. |
+| **[Flask-WTF](https://flask-wtf.readthedocs.io/en/1.1.x/)** | 1.1.1 | Extensión de Flask para manejo y validación de formularios. |
+| **[WTForms](https://wtforms.readthedocs.io/en/3.0.x/)** | 3.0.1 | Librería para creación y validación de formularios. |
+| **[Werkzeug](https://werkzeug.palletsprojects.com/en/2.3.x/)** | 2.3.7 | Utilidades WSGI para Flask. |
+| **[email-validator](https://email-validator.readthedocs.io/en/latest/)** | 1.3.1 | Validación de direcciones de correo electrónico. |
+| **[python-dotenv](https://saurabh-kumar.com/python-dotenv/)** | 1.0.0 | Manejo de variables de entorno mediante archivos `.env`. |
+| **[Requests](https://requests.readthedocs.io/en/latest/)** | 2.31.0 | Consumo de API REST del backend Java. |
+| **[NumPy](https://numpy.org/)** | 1.26.4 | Procesamiento numérico utilizado para análisis estadístico. |
+| **[Pandas](https://pandas.pydata.org/)** | 2.2.3 | Manipulación y preparación de datos históricos de reservas. |
+| **[Statsmodels](https://www.statsmodels.org/stable/index.html)** | 0.14.2 | Implementación del modelo ARIMA para la predicción de reservas. |
 
 
 ## Estructura
@@ -122,7 +129,7 @@ frontendpv/
 - **Personas**: Consulta y gestión de personas.
 - **Roles**: Consulta y gestión de Roles de usuario.
 - **Reservas**: Reserva de materiales o salas.
-- **Reportes**: Predicción de Reservas.
+- **Reportes**: Reportes de Reservas.
 
 ## Rutas del frontend del sistema
 
@@ -132,28 +139,36 @@ frontendpv/
 |------|-------------|--------|
 | `/` | Redirige a `/login`. | Público |
 | `/login` (GET) | Muestra el formulario de inicio de sesión. | Público |
-| `/login` (POST) | Procesa el inicio de sesión, valida contra el backend Java. | Público |
+| `/login` (POST) | Valida credenciales contra el backend Java. | Público |
 | `/logout` | Cierra la sesión en Flask y en el backend Java. | Usuarios autenticados |
+
+---
 
 ## Dashboard
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
-| `/dashboard` | Panel principal del sistema. Muestra nombre y rol del usuario. | USER y ADMIN |
+| `/dashboard` | Panel principal del sistema. Muestra el menú con módulos según rol. | USER y ADMIN |
+
+---
 
 ## Gestión de Usuarios
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
-| `/users` | Lista usuarios obtenidos desde `/api/usuario/listar`. | ADMIN |
-| `/users/add` (POST) | Crea un usuario usando `/api/usuario/add`. | ADMIN |
+| `/users` | Lista usuarios desde `/api/usuario/listar`. | ADMIN |
+| `/users/add` (POST) | Agrega un usuario mediante `/api/usuario/add`. | ADMIN |
+
+---
 
 ## Productos
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
 | `/products` | Lista artículos desde `/api/articulo/listar`. | USER y ADMIN |
-| `/product/<id>` | Detalle de un producto local (solo fallback). | USER y ADMIN |
-| `/api/products` | Endpoint interno que devuelve lista local de productos. | USER y ADMIN |
+| `/product/<id>` | Vista de un producto local (fallback). | USER y ADMIN |
+| `/api/products` | Endpoint interno con productos locales. | USER y ADMIN |
 | `/products/add` (POST) | Crea un artículo (`/api/articulo/add`). | ADMIN |
 | `/products/<id>/update` (POST) | Actualiza un artículo (`/api/articulo/update`). | ADMIN |
+
+---
 
 ## Personas
 | Ruta | Descripción | Acceso |
@@ -163,6 +178,8 @@ frontendpv/
 | `/personas/<id>/update` (POST) | Actualiza persona (`/api/persona/actualizar`). | ADMIN |
 | `/personas/<id>/delete` (POST) | Elimina persona (`/api/persona/eliminar/{id}`). | ADMIN |
 
+---
+
 ## Reservas
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
@@ -171,15 +188,26 @@ frontendpv/
 | `/reservas/<id>/borrar` (POST) | Elimina una reserva (`/api/reservas/borrar/{id}`). | ADMIN |
 | `/reservas/<id>/actualizar` (POST) | Actualiza una reserva (`/api/reservas/actualizar/{id}`). | ADMIN |
 
+---
+
 ## Salas
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
 | `/salas` | Lista salas desde `/api/salas/listar`. | USER y ADMIN |
-| `/salas/add` (POST) | Crea una sala (`/api/salas/crear`). | ADMIN |
-| `/salas/<id>/update` (POST) | Actualiza una sala (`/api/salas/actualizar`). | ADMIN |
-| `/salas/<id>/delete` (POST) | Elimina una sala (`/api/salas/borrar/{id}`). | ADMIN |
+| `/salas/add` (POST) | Crea sala (`/api/salas/crear`). | ADMIN |
+| `/salas/<id>/update` (POST) | Actualiza sala (`/api/salas/actualizar`). | ADMIN |
+| `/salas/<id>/delete` (POST) | Elimina sala (`/api/salas/borrar/{id}`). | ADMIN |
+
+---
 
 ## Reportes
 | Ruta | Descripción | Acceso |
 |------|-------------|--------|
-| `/reportes` | Dashboard de reportes, gráficos y calendario. | USER y ADMIN |
+| `/reportes` | Dashboard con estadísticas del sistema. | USER y ADMIN |
+
+---
+
+## Predicción de Reservas
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/prediccion` | Genera predicción usando ARIMA a partir de `/api/reservas/listar`. Muestra gráfico + tabla de proyección. | USER y ADMIN |
