@@ -1,0 +1,111 @@
+{% extends "bases.html" %}
+{% block title %}Predicción de Reservas{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0 text-warning">Predicción de Reservas</h3>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-warning">Volver</a>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <canvas id="forecastChart" height="90"></canvas>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header">Próximos {{ (fc_labels|length) or 0 }} días (estimación)</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Reservas Estimadas</th>
+              <th>IC 95%</th>
+            </tr>
+          </thead>
+          <tbody id="fcTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const histLabels = {{ hist_labels|safe }};
+  const histVals   = {{ hist_vals|safe }};
+  const fcLabels   = {{ fc_labels|safe }};
+  const fcVals     = {{ fc_vals|safe }};
+  const ciLower    = {{ ci_lower|safe }};
+  const ciUpper    = {{ ci_upper|safe }};
+
+  // Datos combinados
+  const labels = [...histLabels, ...fcLabels];
+  const dataHist = [...histVals, ...Array(fcVals.length).fill(null)];
+  const dataFc   = [...Array(histVals.length).fill(null), ...fcVals];
+  const dataLow  = [...Array(histVals.length).fill(null), ...ciLower];
+  const dataUp   = [...Array(histVals.length).fill(null), ...ciUpper];
+
+  // Gráfico
+  const ctx = document.getElementById('forecastChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Histórico',
+            data: dataHist,
+            borderColor: '#2a9d8f',
+            backgroundColor: 'rgba(42,157,143,0.15)',
+            fill: true,
+            tension: 0.2
+          },
+          {
+            label: 'Predicción',
+            data: dataFc,
+            borderColor: '#e9c46a',
+            borderDash: [6,6],
+            tension: 0.2
+          },
+          // Banda de confianza (sombrado entre lower y upper)
+          {
+            label: 'IC 95% (Lower)',
+            data: dataLow,
+            borderColor: 'rgba(233,196,106,0)',
+            pointRadius: 0
+          },
+          {
+            label: 'IC 95% (Upper)',
+            data: dataUp,
+            borderColor: 'rgba(233,196,106,0)',
+            backgroundColor: 'rgba(233,196,106,0.25)',
+            fill: '-1',
+            pointRadius: 0
+          }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  }
+
+  // Tabla
+  const tb = document.getElementById('fcTableBody');
+  if (tb && fcLabels.length) {
+    for (let i = 0; i < fcLabels.length; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${fcLabels[i]}</td>
+        <td>${fcVals[i]}</td>
+        <td>${ciLower[i]} - ${ciUpper[i]}</td>
+      `;
+      tb.appendChild(tr);
+    }
+  }
+</script>
+{% endblock %}

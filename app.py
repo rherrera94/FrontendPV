@@ -5,6 +5,11 @@ from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectF
 from wtforms.validators import DataRequired, Email, Length
 import os
 import requests
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.stattools import adfuller
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu-clave-secreta-aqui'
@@ -933,6 +938,98 @@ def salas_delete(id_sala: int):
     except Exception as exc:
         flash(f'Error eliminando sala: {exc}', 'error')
     return redirect(url_for('salas'))
+
+@app.route('/prediccion', methods=['GET'])
+@login_required()
+def prediccion():
+    # 1) Histórico desde backend
+    reservas = []
+    try:
+        r = backend_request('GET', '/api/reservas/listar')
+        if 200 <= r.status_code < 300:
+            try:
+                reservas = r.json() or []
+            except ValueError:
+                reservas = []
+        elif r.status_code in (401, 403):
+            flash('Sesión con backend expirada. Inicia sesión de nuevo.', 'error')
+            return redirect(url_for('logout'))
+        else:
+            flash(f'No se pudieron obtener reservas (HTTP {r.status_code})', 'error')
+    except Exception as exc:
+        flash(f'Error consultando reservas: {exc}', 'error')
+
+    # 2) Serie diaria (conteo por fecha)
+    def parse_dt(dt_str: str):
+        if not dt_str:
+            return None
+        for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+            try:
+                return datetime.strptime(dt_str, fmt)
+            except ValueError:
+                continue
+        return None
+
+    fechas = []
+    for res in reservas:
+        d = parse_dt(res.get('fechaHoraInicio'))
+        if d:
+            fechas.append(d.date())
+
+    if not fechas:
+        return render_template('prediccion.html',
+                               hist_labels="[]", hist_vals="[]",
+                               fc_labels="[]", fc_vals="[]",
+                               ci_lower="[]", ci_upper="[]")
+
+    s = pd.Series(1, index=pd.to_datetime(fechas))
+    s = s.groupby(s.index.date).sum()
+    s.index = pd.to_datetime(s.index)
+    s = s.sort_index()
+    full_idx = pd.date_range(start=s.index.min(), end=s.index.max(), freq='D')
+    daily = s.reindex(full_idx, fill_value=0).astype(float)
+
+    # 3) ADF para d
+    try:
+        d_param = 1 if adfuller(daily.dropna())[1] > 0.05 else 0
+    except Exception:
+        d_param = 0
+
+    # 4) ARIMA + forecast
+    pasos_prediccion = 14  # 14 días (cambialo si querés)
+    try:
+        model = ARIMA(daily.asfreq('D'), order=(5, d_param, 0))
+        result = model.fit()
+        fc = result.get_forecast(steps=pasos_prediccion)
+        fc_mean = fc.predicted_mean.clip(lower=0)
+        conf = fc.conf_int()
+        conf.iloc[:, 0] = conf.iloc[:, 0].clip(lower=0)
+        conf.iloc[:, 1] = conf.iloc[:, 1].clip(lower=0)
+
+        future_index = pd.date_range(start=daily.index[-1] + pd.Timedelta(days=1),
+                                     periods=pasos_prediccion, freq='D')
+        fc_mean.index = future_index
+        conf.index = future_index
+
+        hist_labels = [d.strftime("%Y-%m-%d") for d in daily.index]
+        hist_vals   = [float(v) for v in daily.values]
+        fc_labels   = [d.strftime("%Y-%m-%d") for d in future_index]
+        fc_vals     = [round(float(v), 2) for v in fc_mean.values]
+        ci_lower    = [round(float(v), 2) for v in conf.iloc[:, 0].values]
+        ci_upper    = [round(float(v), 2) for v in conf.iloc[:, 1].values]
+    except Exception:
+        # Si falla ARIMA, solo mostramos histórico
+        hist_labels = [d.strftime("%Y-%m-%d") for d in daily.index]
+        hist_vals   = [float(v) for v in daily.values]
+        fc_labels = fc_vals = ci_lower = ci_upper = []
+
+    return render_template('prediccion.html',
+                           hist_labels=json.dumps(hist_labels),
+                           hist_vals=json.dumps(hist_vals),
+                           fc_labels=json.dumps(fc_labels),
+                           fc_vals=json.dumps(fc_vals),
+                           ci_lower=json.dumps(ci_lower),
+                           ci_upper=json.dumps(ci_upper))
 
 if __name__ == '__main__':
     app.run(debug=True)

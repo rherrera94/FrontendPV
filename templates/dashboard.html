@@ -56,20 +56,6 @@
             </div>
         </div>
 
-         <div class="col-md-4">
-            <div class="card text-white bg-success h-100 shadow-sm">
-                <div class="card-body d-flex flex-column justify-content-between">
-                    <div>
-                        <h5 class="card-title">Roles</h5>
-                        <p class="card-text">Gestión de roles de usuarios</p>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="#" class="btn btn-light btn-sm px-3">Gestionar Roles</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="col-md-4">
             <div class="card text-white bg-success h-100 shadow-sm">
                 <div class="card-body d-flex flex-column justify-content-between">
@@ -90,7 +76,7 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <h5 class="card-title">Reportes</h5>
-                        <p class="card-text">Predicción de Reservas</p>
+                        <p class="card-text">Reportes de reservas</p>
                     </div>
                     <div class="text-center mt-3">
                         <a href="{{ url_for('reportes') }}" class="btn btn-light btn-sm px-3">Ver Reportes</a>
@@ -98,6 +84,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title">Predicción</h5>
+                    <p class="card-text">Estimación de reservas</p>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('prediccion') }}" class="btn btn-light btn-sm px-3">Ver Predicción</a>
+                </div>
+                </div>
+            </div>
+        </div>
+
 
     <div class="col-md-4">
             <div class="card text-white bg-primary h-100 shadow-sm">
