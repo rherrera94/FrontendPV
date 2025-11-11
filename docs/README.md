@@ -27,7 +27,14 @@
    - [Estructura](#Estructura)
    - [Módulos del sistema](#Módulos-del-sistema)
    - [Rutas del frontend del sistema](#Rutas-del-frontend-del-sistema)
-- [Miembros del equipo](#Miembros-del-equipo)
+      - [Rutas del Frontend](#Rutas-del-Frontend)
+      - [Dashboard](#Dashboard)
+      - [Gestión de usuarios](#Gestión-de-Usuarios)
+      - [Productos](#Productos)
+      - [Personas](#Personas)
+      - [Reservas](#Reservas)
+      - [Salas](#Salas)
+      - [Reportes](#Reportes)
 
 <br>
 
@@ -110,7 +117,7 @@ frontendpv/
 
 ## Módulos del sistema
 
-- **Productos**: Catálogo completo de los productos disponiobles.
+- **Productos**: Catálogo completo de los productos disponibles.
 - **Usuarios**: Consulta y gestión de usuarios.
 - **Personas**: Consulta y gestión de personas.
 - **Roles**: Consulta y gestión de Roles de usuario.
@@ -119,11 +126,60 @@ frontendpv/
 
 ## Rutas del frontend del sistema
 
+## Rutas del Frontend
+
 | Ruta | Descripción | Acceso |
-|------|--------------|--------|
-| `/` | Página principal redirige a `/login` (Login del sistema). | Público |
-| `/dashboard` | Panel principal del sistema donde figuraran las diferentes secciones a las cuales se tiene acceso. | Todos los usuarios logueados |
-| `/products` | Listado y gestión de productos disponibles. | Todos los usuarios logueados |
-| `/user-managemen` | Gestión de usuarios registrados. | Administrador |
-| `/register` | Registro de usuarios. | Administrador |
-| `/logout` | Cierra la sesión del usuario actual. | Usuarios autenticados |
+|------|-------------|--------|
+| `/` | Redirige a `/login`. | Público |
+| `/login` (GET) | Muestra el formulario de inicio de sesión. | Público |
+| `/login` (POST) | Procesa el inicio de sesión, valida contra el backend Java. | Público |
+| `/logout` | Cierra la sesión en Flask y en el backend Java. | Usuarios autenticados |
+
+## Dashboard
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/dashboard` | Panel principal del sistema. Muestra nombre y rol del usuario. | USER y ADMIN |
+
+## Gestión de Usuarios
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/users` | Lista usuarios obtenidos desde `/api/usuario/listar`. | ADMIN |
+| `/users/add` (POST) | Crea un usuario usando `/api/usuario/add`. | ADMIN |
+
+## Productos
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/products` | Lista artículos desde `/api/articulo/listar`. | USER y ADMIN |
+| `/product/<id>` | Detalle de un producto local (solo fallback). | USER y ADMIN |
+| `/api/products` | Endpoint interno que devuelve lista local de productos. | USER y ADMIN |
+| `/products/add` (POST) | Crea un artículo (`/api/articulo/add`). | ADMIN |
+| `/products/<id>/update` (POST) | Actualiza un artículo (`/api/articulo/update`). | ADMIN |
+
+## Personas
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/personas` | Lista personas desde `/api/persona/listar`. | USER y ADMIN |
+| `/personas/add` (POST) | Crea persona (`/api/persona/add`). | ADMIN |
+| `/personas/<id>/update` (POST) | Actualiza persona (`/api/persona/actualizar`). | ADMIN |
+| `/personas/<id>/delete` (POST) | Elimina persona (`/api/persona/eliminar/{id}`). | ADMIN |
+
+## Reservas
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/reservas` | Lista reservas, salas, personas y artículos. | USER y ADMIN |
+| `/reservas/crear` (POST) | Crea una reserva (`/api/reservas/crear`). | USER y ADMIN |
+| `/reservas/<id>/borrar` (POST) | Elimina una reserva (`/api/reservas/borrar/{id}`). | ADMIN |
+| `/reservas/<id>/actualizar` (POST) | Actualiza una reserva (`/api/reservas/actualizar/{id}`). | ADMIN |
+
+## Salas
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/salas` | Lista salas desde `/api/salas/listar`. | USER y ADMIN |
+| `/salas/add` (POST) | Crea una sala (`/api/salas/crear`). | ADMIN |
+| `/salas/<id>/update` (POST) | Actualiza una sala (`/api/salas/actualizar`). | ADMIN |
+| `/salas/<id>/delete` (POST) | Elimina una sala (`/api/salas/borrar/{id}`). | ADMIN |
+
+## Reportes
+| Ruta | Descripción | Acceso |
+|------|-------------|--------|
+| `/reportes` | Dashboard de reportes, gráficos y calendario. | USER y ADMIN |
