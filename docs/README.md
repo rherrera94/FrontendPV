@@ -130,6 +130,7 @@ frontendpv/
 - **Roles**: Consulta y gestión de Roles de usuario.
 - **Reservas**: Reserva de materiales o salas.
 - **Reportes**: Reportes de Reservas.
+- **Prediccion**: Realiza prediccion de reservas.
 
 ## Rutas del frontend del sistema
 
