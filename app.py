@@ -14,12 +14,7 @@ from statsmodels.tsa.stattools import adfuller
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu-clave-secreta-aqui'
 
-# Backend Java (hardcoded credentials for MVP)
-# URL base del backend Java
 BACKEND_BASE = os.environ.get('BACKEND_BASE', 'http://localhost:8080')
-BACKEND_USER = os.environ.get('BACKEND_USER', 'admin')
-BACKEND_PASS = os.environ.get('BACKEND_PASS', '1234')
-
 
 def backend_url(path: str) -> str:
 
@@ -91,48 +86,6 @@ class RegisterForm(FlaskForm):
     role = SelectField('Rol', choices=[('user', 'Usuario'), ('admin', 'Administrador')], validators=[DataRequired()])
     submit = SubmitField('Registrar Usuario')
 
-# DATOS DE PRUEBA HASTA QUE SE USE LA API REAL
-USERS = [
-    {
-        "id": 1,
-        "name": "Admin Principal",
-        "email": "admin@legitimoabono.com",
-        "password": "admin123",  # En producción usar hash
-        "role": "admin"
-    }
-]
-
-PRODUCTS = [
-    {
-        "id": 1,
-        "name": "Producto 1",
-        "price": 29.99,
-        "image": "/static/images/product1.jpg",
-        "description": "Descripción del producto 1"
-    },
-    {
-        "id": 2,
-        "name": "Producto 2", 
-        "price": 39.99,
-        "image": "/static/images/product2.jpg",
-        "description": "Descripción del producto 2"
-    }
-]
-
-"""
-    Esta funcion busca y devuelve (de encontrarlo) 
-    un usuario según un email que recibe dentro como
-    parámetro.
-
-    Retorna:
-        - None si no encontro el email solicitado.
-        - El usuario solicitado si el mail existe dentro de la BBDD.
-"""
-def find_user_by_email(email):
-    for user in USERS:
-        if user['email'] == email:
-            return user
-    return None
 
 """
     Verifica si el rol del usuario es admin o no. Por lo tanto,
@@ -189,7 +142,7 @@ def login():
         session['user'] = username
         session['user_name'] = username
 
-        # === Nuevo bloque: obtener rol real del backend ===
+
         try:
             resp = backend_request('GET', '/api/usuario/listar')
             if resp.status_code == 200:
