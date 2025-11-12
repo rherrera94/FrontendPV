@@ -2,11 +2,17 @@
 ## Integrantes del Equipo
 
 **Rafael Herrera**
-**Boris Salinas** 
+
+**Boris Salinas**
+
 **Candela Quintana**
+
 **Gabriel Melotta**
+
 **Dario Panozo**
+
 **Ramiro Mendez**
+
 **Evelin Barzabal**
 
 <br>
