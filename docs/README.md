@@ -1,4 +1,13 @@
 # Programación de Vanguardia - Universidad de la Ciudad de Buenos Aires.
+## Integrantes del Equipo
+
+**Rafael Herrera**
+**Boris Salinas** 
+**Candela Quintana**
+**Gabriel Melotta**
+**Dario Panozo**
+**Ramiro Mendez**
+**Evelin Barzabal**
 
 <br>
 <br>
